@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Mail, Phone, Linkedin, Github, Briefcase, Users, Code, BarChart, Twitter } from 'lucide-react'
+import { ChevronDown, Mail, Phone, Github, Briefcase, Users, Code, BarChart, Twitter } from 'lucide-react'
 
 const sections = ['Home', 'Bio', 'Portfolio', 'Contact']
 
@@ -100,7 +100,7 @@ function HomeSection() {
   return (
     <div className="text-center">
       <h2 className="text-6xl font-bold mb-4">Welcome</h2>
-      <p className="text-2xl">I'm Stephen Ferguson, a passionate developer and creative problem solver.</p>
+      <p className="text-2xl">I&apos;m Stephen Ferguson, a passionate developer and creative problem solver.</p>
     </div>
   )
 }
