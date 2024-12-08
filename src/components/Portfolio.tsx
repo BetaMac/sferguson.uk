@@ -66,9 +66,8 @@ export default function Portfolio() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.5 }}
-            className="h-screen flex items-center justify-center"
           >
-            <div className="bg-[#000106] bg-opacity-80 p-8 rounded-3xl w-full max-w-4xl mx-auto">
+            <div className="h-screen flex items-center justify-center bg-[#000106] bg-opacity-80 p-8 rounded-3xl w-full max-w-4xl mx-auto">
               {currentSection === 0 && <HomeSection />}
               {currentSection === 1 && <BioSection />}
               {currentSection === 2 && <PortfolioSection />}
@@ -79,7 +78,13 @@ export default function Portfolio() {
 
         {currentSection < sections.length - 1 && (
           <motion.div
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20"
+            style={{
+              position: 'absolute',
+              bottom: '4px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 20,
+            }}
             animate={{ y: [0, 10, 0] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
           >
@@ -193,11 +198,11 @@ function Starfield({ isScrolling }: { isScrolling: boolean }) {
   const stars = useRef<{ x: number; y: number; z: number; px: number; py: number; size: number }[]>([])
   const speed = useRef(0)
   const targetSpeed = useRef(0)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     const canvas = document.getElementById('starfield') as HTMLCanvasElement
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas?.getContext('2d')
 
     const resizeCanvas = () => {
       if (canvas) {
