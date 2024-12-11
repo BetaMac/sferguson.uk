@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Mail, Phone, Github, Briefcase, Users, Code, BarChart, Twitter } from 'lucide-react'
+import { ChevronDown, Mail, Phone, Github, Briefcase, Users, Code, BarChart, Twitter, Menu, X } from 'lucide-react'
 
 const sections = ['Home', 'Bio', 'Portfolio', 'Contact']
 
@@ -10,7 +10,9 @@ export default function Portfolio() {
   const [currentSection, setCurrentSection] = useState(0)
   const [isScrolling, setIsScrolling] = useState(false)
   const [isMenuNavigating, setIsMenuNavigating] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const touchStartY = useRef(0)
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -24,40 +26,101 @@ export default function Portfolio() {
       setTimeout(() => setIsScrolling(false), 1000)
     }
 
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (isScrolling) return
+      const touchEndY = e.touches[0].clientY
+      const deltaY = touchStartY.current - touchEndY
+      if (deltaY > 50 && currentSection < sections.length - 1) {
+        setIsScrolling(true)
+        setCurrentSection(currentSection + 1)
+      } else if (deltaY < -50 && currentSection > 0) {
+        setIsScrolling(true)
+        setCurrentSection(currentSection - 1)
+      }
+      setTimeout(() => setIsScrolling(false), 1000)
+    }
+
     const container = containerRef.current
     if (container) {
       container.addEventListener('wheel', handleWheel)
+      container.addEventListener('touchstart', handleTouchStart)
+      container.addEventListener('touchmove', handleTouchMove)
     }
 
     return () => {
       if (container) {
         container.removeEventListener('wheel', handleWheel)
+        container.removeEventListener('touchstart', handleTouchStart)
+        container.removeEventListener('touchmove', handleTouchMove)
       }
     }
   }, [currentSection, isScrolling])
 
+  const handleMenuClick = (index: number) => {
+    setIsMenuNavigating(true)
+    setCurrentSection(index)
+    setIsMobileMenuOpen(false)
+    setTimeout(() => setIsMenuNavigating(false), 1000)
+  }
+
   return (
-    <div className="relative h-screen overflow-hidden bg-[#000106] text-white" ref={containerRef}>
+    <div className="relative min-w-[320px] h-screen overflow-hidden bg-[#000106] text-white" ref={containerRef}>
       <Starfield isScrolling={isScrolling || isMenuNavigating} />
       <div className="relative z-10">
-        <header className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-black bg-opacity-50">
-          <h1 className="text-2xl font-bold">Stephen Ferguson</h1>
-          <nav>
+        <header className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-black bg-opacity-10">
+          <h1 className="text-xl font-bold">Stephen Ferguson</h1>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden sm:block">
             {sections.map((section, index) => (
               <button
                 key={section}
                 className={`mx-2 ${currentSection === index ? 'text-blue-400' : 'text-white'}`}
-                onClick={() => {
-                  setIsMenuNavigating(true)
-                  setCurrentSection(index)
-                  setTimeout(() => setIsMenuNavigating(false), 1000)
-                }}
+                onClick={() => handleMenuClick(index)}
               >
                 {section}
               </button>
             ))}
           </nav>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="sm:hidden p-2 hover:text-blue-400 transition-colors"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </header>
+
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-40 sm:hidden">
+            <div 
+              className="absolute inset-0 bg-black bg-opacity-10" 
+              onClick={() => setIsMobileMenuOpen(false)} 
+            />
+            <nav className="absolute right-0 top-0 h-fit bg-[#000106] bg-opacity-10 backdrop-blur-sm shadow-lg p-4 pt-16">
+              {sections.map((section, index) => (
+                <button
+                  key={section}
+                  className={`block w-full text-left px-4 py-2 mb-2 rounded ${
+                    currentSection === index 
+                      ? 'bg-blue-900 bg-opacity-50 text-blue-400' 
+                      : 'hover:bg-gray-900 hover:bg-opacity-50'
+                  }`}
+                  onClick={() => handleMenuClick(index)}
+                >
+                  {section}
+                </button>
+              ))}
+            </nav>
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -67,7 +130,7 @@ export default function Portfolio() {
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="h-screen flex items-center justify-center bg-[#000106] bg-opacity-80 p-8 rounded-3xl w-full max-w-4xl mx-auto">
+            <div className="h-screen flex items-center justify-center bg-[#000106] bg-opacity-10 p-8 rounded-3xl w-full max-w-4xl mx-auto">
               {currentSection === 0 && <HomeSection />}
               {currentSection === 1 && <BioSection />}
               {currentSection === 2 && <PortfolioSection />}
@@ -99,8 +162,8 @@ export default function Portfolio() {
 function HomeSection() {
   return (
     <div className="text-center">
-      <h2 className="text-6xl font-bold mb-4">Welcome</h2>
-      <p className="text-2xl">I&apos;m Stephen Ferguson, a passionate developer and creative problem solver.</p>
+      <h2 className="text-5xl font-bold mb-4">Welcome</h2>
+      <p className="text-xl">I&apos;m Steve Ferguson, a Senior Technical Solutions Specialist with 20 years&apos; experience delivering solutions for top consultancies. <br/><br/>I&apos;ve honed my skills leading teams, developing business-critical applications, and engineering innovative survey solutions that leverage cutting-edge technology. <br/><br/>Collaborating seamlessly with researchers, analysts, finance teams or end-clients, I turn complex requirements into intuitive systems that drive insights and innovation.</p>
     </div>
   )
 }
@@ -108,42 +171,42 @@ function HomeSection() {
 function BioSection() {
   return (
     <div className="text-center">
-      <h2 className="text-4xl font-bold mb-6">About Me</h2>
+      <h2 className="text-4xl font-bold mb-6">Me</h2>
       <p className="text-xl mb-6">
-        Seasoned freelance technical consultant with 20 years in market research, specializing in data and web technologies.
+        Seasoned technical consultant with 20 years in market research, specializing in data and web technologies.
       </p>
       <div className="grid grid-cols-2 gap-6 mb-6">
         <div className="flex flex-col items-center">
           <Briefcase className="w-8 h-8 mb-2 text-blue-400" />
-          <h3 className="text-lg font-semibold mb-1">Industry Experience</h3>
+          <h3 className="text-lg font-semibold mb-1">Industry</h3>
           <p className="text-sm">
-            Worked with Dynata and STRAT7, leaders in market research.
+            STRAT7 Incite (strategic research and planning) and Dynata (global data solutions leader).
           </p>
         </div>
         <div className="flex flex-col items-center">
           <Users className="w-8 h-8 mb-2 text-blue-400" />
           <h3 className="text-lg font-semibold mb-1">Leadership</h3>
           <p className="text-sm">
-            Led 10+ member teams, driving innovation in data projects.
+            Led 10+ member teams and outsource resources in survey programming and data collection.
           </p>
         </div>
         <div className="flex flex-col items-center">
           <Code className="w-8 h-8 mb-2 text-blue-400" />
-          <h3 className="text-lg font-semibold mb-1">Technical Expertise</h3>
+          <h3 className="text-lg font-semibold mb-1">Technical</h3>
           <p className="text-sm">
-            Developed full-stack apps for financial reporting and project management.
+            Developed full-stack and stand-alone applications for financial reporting and project management, and automation tasks.
           </p>
         </div>
         <div className="flex flex-col items-center">
           <BarChart className="w-8 h-8 mb-2 text-blue-400" />
-          <h3 className="text-lg font-semibold mb-1">Data Analysis</h3>
+          <h3 className="text-lg font-semibold mb-1">Data</h3>
           <p className="text-sm">
-            Transform complex data into actionable insights for clients.
+            Collection, analysis and reporting of complex data into actionable insights for hundreds of clients.
           </p>
         </div>
       </div>
-      <p className="text-lg">
-        Bridging data collection, analysis, and application to drive growth and solve complex business challenges.
+      <p className="text-xl">
+        Bridging data collection, analysis, and development to drive growth and solve business challenges.
       </p>
     </div>
   )
@@ -151,18 +214,21 @@ function BioSection() {
 
 function PortfolioSection() {
   const projects = [
-    { title: 'E-commerce Platform', description: 'A full-stack online store with real-time inventory.' },
-    { title: 'Social Media Dashboard', description: 'Analytics tool for managing multiple social accounts.' },
-    { title: 'Mobile Fitness App', description: 'React Native app for tracking workouts and nutrition.' },
+    { title: 'PIP', description: 'A full-stack project management and financial reporting tool.' },
+    { title: 'ConRed', description: 'A batch search/replace tool to automate redaction and parsing for ML.' },
+    { title: 'XML-converter', description: 'A trained LLM to produce survey software XML output.' },
+    { title: 'excel-translator', description: 'A survey translation excel output tool utilising Google\'s API.' },
+    { title: 'brand-analyser', description: 'A web scraper with rudimentary analysis for brand mentions (PR).' },
+    { title: 'Taiten', description: 'An AI Agent that helps with my personsal tasks.' },
   ]
 
   return (
     <div className="max-w-4xl">
-      <h2 className="text-4xl font-bold mb-8 text-center">My Work</h2>
+      <h2 className="text-4xl font-bold mb-8 text-center">Work</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project, index) => (
-          <div key={index} className="bg-gray-800 bg-opacity-70 p-6 rounded-lg backdrop-blur-sm">
-            <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
+          <div key={index} className="bg-gray-800 bg-opacity-10 p-2 rounded-lg backdrop-blur-sm">
+            <h3 className="text-xl font-semibold mb-2 items-center">{project.title}</h3>
             <p>{project.description}</p>
           </div>
         ))}
