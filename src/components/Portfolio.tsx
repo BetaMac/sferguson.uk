@@ -11,19 +11,32 @@ export default function Portfolio() {
   const [isScrolling, setIsScrolling] = useState(false)
   const [isMenuNavigating, setIsMenuNavigating] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [lastScrollTime, setLastScrollTime] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const touchStartY = useRef(0)
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      if (isScrolling) return
-      setIsScrolling(true)
-      if (e.deltaY > 0 && currentSection < sections.length - 1) {
-        setCurrentSection(currentSection + 1)
-      } else if (e.deltaY < 0 && currentSection > 0) {
-        setCurrentSection(currentSection - 1)
+      if (currentSection !== 0 && e.deltaY < 0) {
+        e.preventDefault()
       }
-      setTimeout(() => setIsScrolling(false), 1000)
+
+      const now = Date.now()
+      if (isScrolling || now - lastScrollTime < 500) return
+      
+      const scrollThreshold = 20
+      
+      if (Math.abs(e.deltaY) > scrollThreshold) {
+        setIsScrolling(true)
+        setLastScrollTime(now)
+        
+        if (e.deltaY > 0 && currentSection < sections.length - 1) {
+          setCurrentSection(currentSection + 1)
+        } else if (e.deltaY < 0 && currentSection > 0) {
+          setCurrentSection(currentSection - 1)
+        }
+        setTimeout(() => setIsScrolling(false), 1000)
+      }
     }
 
     const handleTouchStart = (e: TouchEvent) => {
@@ -32,23 +45,32 @@ export default function Portfolio() {
 
     const handleTouchMove = (e: TouchEvent) => {
       if (isScrolling) return
+      const now = Date.now()
+      if (now - lastScrollTime < 500) return
+
       const touchEndY = e.touches[0].clientY
       const deltaY = touchStartY.current - touchEndY
-      if (deltaY > 50 && currentSection < sections.length - 1) {
+      
+      const touchThreshold = 80
+      
+      if (Math.abs(deltaY) > touchThreshold) {
         setIsScrolling(true)
-        setCurrentSection(currentSection + 1)
-      } else if (deltaY < -50 && currentSection > 0) {
-        setIsScrolling(true)
-        setCurrentSection(currentSection - 1)
+        setLastScrollTime(now)
+        
+        if (deltaY > 0 && currentSection < sections.length - 1) {
+          setCurrentSection(currentSection + 1)
+        } else if (deltaY < 0 && currentSection > 0) {
+          setCurrentSection(currentSection - 1)
+        }
+        setTimeout(() => setIsScrolling(false), 1000)
       }
-      setTimeout(() => setIsScrolling(false), 1000)
     }
 
     const container = containerRef.current
     if (container) {
-      container.addEventListener('wheel', handleWheel)
+      container.addEventListener('wheel', handleWheel, { passive: false })
       container.addEventListener('touchstart', handleTouchStart)
-      container.addEventListener('touchmove', handleTouchMove)
+      container.addEventListener('touchmove', handleTouchMove, { passive: true })
     }
 
     return () => {
@@ -58,7 +80,7 @@ export default function Portfolio() {
         container.removeEventListener('touchmove', handleTouchMove)
       }
     }
-  }, [currentSection, isScrolling])
+  }, [currentSection, isScrolling, lastScrollTime])
 
   const handleMenuClick = (index: number) => {
     setIsMenuNavigating(true)
@@ -72,7 +94,7 @@ export default function Portfolio() {
       <Starfield isScrolling={isScrolling || isMenuNavigating} />
       <div className="relative z-10">
         <header className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-3 bg-black bg-opacity-10">
-          <h1 className="text-base sm:text-xl font-bold">
+          <h1 className="text-sm sm:text-xl font-bold">
             <span className="hidden xs:inline">Stephen Ferguson</span>
           </h1>
           
@@ -101,7 +123,7 @@ export default function Portfolio() {
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-40 sm:hidden">
+          <div className="fixed inset-0 z-40 sm:hidden" onClick={(e) => e.stopPropagation()}>
             <div 
               className="absolute inset-0 bg-black bg-opacity-10" 
               onClick={() => setIsMobileMenuOpen(false)} 
@@ -124,38 +146,54 @@ export default function Portfolio() {
           </div>
         )}
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSection}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.2 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="h-screen flex items-center justify-center bg-[#000106] bg-opacity-10 p-8 rounded-3xl w-full max-w-4xl mx-auto">
-              {currentSection === 0 && <HomeSection />}
-              {currentSection === 1 && <BioSection />}
-              {currentSection === 2 && <PortfolioSection />}
-              {currentSection === 3 && <ContactSection />}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+        <div className="perspective-[1000px] h-screen overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSection}
+              initial={{ z: 1000, opacity: 0 }}
+              animate={{ z: 0, opacity: 1 }}
+              exit={{ z: -1000, opacity: 0 }}
+              transition={{ 
+                type: "tween",
+                duration: 0.5,
+                ease: "easeInOut"
+              }}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                transformStyle: 'preserve-3d',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <div className="h-screen flex items-center justify-center bg-[#000106] bg-opacity-10 p-4 sm:p-8 rounded-3xl w-full max-w-4xl mx-auto">
+                {currentSection === 0 && <HomeSection />}
+                {currentSection === 1 && <BioSection />}
+                {currentSection === 2 && <PortfolioSection />}
+                {currentSection === 3 && <ContactSection />}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-        {currentSection < sections.length - 1 && (
-          <motion.div
-            style={{
-              position: 'absolute',
-              bottom: '4px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 20,
-            }}
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          >
-            <ChevronDown size={32} />
-          </motion.div>
-        )}
+        {/* New footer section */}
+        <footer className="fixed bottom-0 left-0 right-0 z-20 flex justify-center pb-2">
+          {currentSection < sections.length - 1 && (
+            <motion.div
+              animate={{
+                y: [0, 10, 0],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <ChevronDown className="text-white opacity-50" />
+            </motion.div>
+          )}
+        </footer>
       </div>
     </div>
   )
@@ -173,36 +211,36 @@ function HomeSection() {
 function BioSection() {
   return (
     <div className="text-center">
-      <h2 className="text-4xl font-bold mb-6">Me</h2>
-      <p className="text-xl mb-6">
+      <h2 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6">Me</h2>
+      <p className="text-lg sm:text-xl mb-4 sm:mb-6">
         Seasoned technical consultant with 20 years in market research, specializing in data and web technologies.
       </p>
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
         <div className="flex flex-col items-center">
-          <Briefcase className="w-8 h-8 mb-2 text-blue-400" />
-          <h3 className="text-lg font-semibold mb-1">Industry</h3>
-          <p className="text-sm">
+          <Briefcase className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-blue-400" />
+          <h3 className="text-base sm:text-lg font-semibold mb-1">Industry</h3>
+          <p className="text-xs sm:text-sm">
             STRAT7 Incite (strategic research and planning) and Dynata (global data solutions leader).
           </p>
         </div>
         <div className="flex flex-col items-center">
-          <Users className="w-8 h-8 mb-2 text-blue-400" />
-          <h3 className="text-lg font-semibold mb-1">Leadership</h3>
-          <p className="text-sm">
+          <Users className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-blue-400" />
+          <h3 className="text-base sm:text-lg font-semibold mb-1">Leadership</h3>
+          <p className="text-xs sm:text-sm">
             Led 10+ member teams and outsource resources in survey programming and data collection.
           </p>
         </div>
         <div className="flex flex-col items-center">
-          <Code className="w-8 h-8 mb-2 text-blue-400" />
-          <h3 className="text-lg font-semibold mb-1">Technical</h3>
-          <p className="text-sm">
+          <Code className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-blue-400" />
+          <h3 className="text-base sm:text-lg font-semibold mb-1">Technical</h3>
+          <p className="text-xs sm:text-sm">
             Developed full-stack and stand-alone applications for financial reporting and project management, and automation tasks.
           </p>
         </div>
         <div className="flex flex-col items-center">
-          <BarChart className="w-8 h-8 mb-2 text-blue-400" />
-          <h3 className="text-lg font-semibold mb-1">Data</h3>
-          <p className="text-sm">
+          <BarChart className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-blue-400" />
+          <h3 className="text-base sm:text-lg font-semibold mb-1">Data</h3>
+          <p className="text-xs sm:text-sm">
             Collection, analysis and reporting of complex data into actionable insights for hundreds of clients.
           </p>
         </div>
@@ -226,16 +264,15 @@ function PortfolioSection() {
 
   return (
     <div className="max-w-4xl">
-      <h2 className="text-4xl font-bold mb-8 text-center">Work</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-center">Work</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {projects.map((project, index) => (
           <div 
             key={index} 
-            className={`bg-gray-800 bg-opacity-10 p-2 rounded-lg backdrop-blur-sm
-              ${index === projects.length - 1 ? 'hidden xs:block' : ''}`}
+            className="bg-gray-800 bg-opacity-10 p-2 rounded-lg backdrop-blur-sm"
           >
-            <h3 className="text-xl font-semibold mb-2 items-center">{project.title}</h3>
-            <p>{project.description}</p>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">{project.title}</h3>
+            <p className="text-sm sm:text-base">{project.description}</p>
           </div>
         ))}
       </div>
@@ -246,8 +283,8 @@ function PortfolioSection() {
 function ContactSection() {
   return (
     <div className="text-center">
-      <h2 className="text-4xl font-bold mb-8">Get In Touch</h2>
-      <div className="flex flex-col items-center space-y-4">
+      <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">Get In Touch</h2>
+      <div className="flex flex-col items-center space-y-3 sm:space-y-4 text-sm sm:text-base">
         <a href="mailto:thestevefergie@gmail.com" className="flex items-center">
           <Mail className="mr-2" /> thestevefergie@gmail.com
         </a>
