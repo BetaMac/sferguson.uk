@@ -44,9 +44,12 @@ export default function Portfolio() {
       const target = e.target as HTMLElement
       const header = document.querySelector('header')
       const mobileMenu = document.querySelector('nav.mobile-menu')
+      const contactLinks = document.querySelectorAll('a')
       
-      // Allow touch events if we're interacting with the header/menu
-      if (header?.contains(target) || mobileMenu?.contains(target)) {
+      // Allow touch events if we're interacting with the header/menu or links
+      if (header?.contains(target) || 
+          mobileMenu?.contains(target) || 
+          Array.from(contactLinks).some(link => link.contains(target))) {
         return
       }
 
@@ -62,9 +65,12 @@ export default function Portfolio() {
       const target = e.target as HTMLElement
       const header = document.querySelector('header')
       const mobileMenu = document.querySelector('nav.mobile-menu')
+      const contactLinks = document.querySelectorAll('a')
       
-      // Allow touch events if we're interacting with the header/menu
-      if (header?.contains(target) || mobileMenu?.contains(target)) {
+      // Allow touch events if we're interacting with the header/menu or links
+      if (header?.contains(target) || 
+          mobileMenu?.contains(target) || 
+          Array.from(contactLinks).some(link => link.contains(target))) {
         return
       }
 
