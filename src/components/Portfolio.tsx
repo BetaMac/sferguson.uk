@@ -71,8 +71,10 @@ export default function Portfolio() {
     <div className="relative min-w-[320px] h-screen overflow-hidden bg-[#000106] text-white" ref={containerRef}>
       <Starfield isScrolling={isScrolling || isMenuNavigating} />
       <div className="relative z-10">
-        <header className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-black bg-opacity-10">
-          <h1 className="text-xl font-bold">Stephen Ferguson</h1>
+        <header className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-3 bg-black bg-opacity-10">
+          <h1 className="text-base sm:text-xl font-bold">
+            <span className="hidden xs:inline">Stephen Ferguson</span>
+          </h1>
           
           {/* Desktop Navigation */}
           <nav className="hidden sm:block">
@@ -227,7 +229,11 @@ function PortfolioSection() {
       <h2 className="text-4xl font-bold mb-8 text-center">Work</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project, index) => (
-          <div key={index} className="bg-gray-800 bg-opacity-10 p-2 rounded-lg backdrop-blur-sm">
+          <div 
+            key={index} 
+            className={`bg-gray-800 bg-opacity-10 p-2 rounded-lg backdrop-blur-sm
+              ${index === projects.length - 1 ? 'hidden xs:block' : ''}`}
+          >
             <h3 className="text-xl font-semibold mb-2 items-center">{project.title}</h3>
             <p>{project.description}</p>
           </div>
