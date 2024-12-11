@@ -4,6 +4,18 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async redirects() {
+    return []
+  },
+  distDir: 'out',
+  async copyFileToPublicDirectory() {
+    return [
+      {
+        source: './CNAME',
+        destination: './out/CNAME',
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig
