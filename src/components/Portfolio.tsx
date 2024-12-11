@@ -40,11 +40,41 @@ export default function Portfolio() {
     }
 
     const handleTouchStart = (e: TouchEvent) => {
+      // Get the touch target
+      const target = e.target as HTMLElement
+      const header = document.querySelector('header')
+      const mobileMenu = document.querySelector('nav.mobile-menu')
+      
+      // Allow touch events if we're interacting with the header/menu
+      if (header?.contains(target) || mobileMenu?.contains(target)) {
+        return
+      }
+
+      // Prevent pull-to-refresh on other pages
+      if (currentSection !== 0) {
+        e.preventDefault()
+      }
       touchStartY.current = e.touches[0].clientY
     }
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (isScrolling) return
+      // Get the touch target
+      const target = e.target as HTMLElement
+      const header = document.querySelector('header')
+      const mobileMenu = document.querySelector('nav.mobile-menu')
+      
+      // Allow touch events if we're interacting with the header/menu
+      if (header?.contains(target) || mobileMenu?.contains(target)) {
+        return
+      }
+
+      // Prevent pull-to-refresh on other pages
+      if (currentSection !== 0) {
+        e.preventDefault()
+      }
+      
+      if (isMobileMenuOpen) return
+      
       const now = Date.now()
       if (now - lastScrollTime < 500) return
 
@@ -69,8 +99,8 @@ export default function Portfolio() {
     const container = containerRef.current
     if (container) {
       container.addEventListener('wheel', handleWheel, { passive: false })
-      container.addEventListener('touchstart', handleTouchStart)
-      container.addEventListener('touchmove', handleTouchMove, { passive: true })
+      container.addEventListener('touchstart', handleTouchStart, { passive: false })
+      container.addEventListener('touchmove', handleTouchMove, { passive: false })
     }
 
     return () => {
@@ -128,7 +158,7 @@ export default function Portfolio() {
               className="absolute inset-0 bg-black bg-opacity-10" 
               onClick={() => setIsMobileMenuOpen(false)} 
             />
-            <nav className="absolute right-0 top-0 h-fit bg-[#000106] bg-opacity-10 backdrop-blur-sm shadow-lg p-4 pt-16">
+            <nav className="absolute right-0 top-0 h-fit bg-[#000106] bg-opacity-10 backdrop-blur-sm shadow-lg p-4 pt-16 mobile-menu">
               {sections.map((section, index) => (
                 <button
                   key={section}
@@ -203,7 +233,7 @@ function HomeSection() {
   return (
     <div className="text-center">
       <h2 className="text-5xl font-bold mb-4">Welcome</h2>
-      <p className="text-xl">I&apos;m Steve Ferguson, a Senior Technical Solutions Specialist with 20 years&apos; experience delivering solutions for top consultancies. <br/><br/>I&apos;ve honed my skills leading teams, developing business-critical applications, and engineering innovative survey solutions that leverage cutting-edge technology. <br/><br/>Collaborating seamlessly with researchers, analysts, finance teams or end-clients, I turn complex requirements into intuitive systems that drive insights and innovation.</p>
+      <p className="text-xl">I&apos;m Steve Ferguson, a Senior Technical Solutions Specialist with 20 years&apos; experience delivering solutions for top consultancies. <br/><br/>I&apos;ve honed my skills leading teams, developing business-critical applications, and engineering innovative survey solutions that leverage cutting-edge technology. <br/><br/>Collaborating with researchers, analysts, finance teams or end-clients, I turn complex requirements into intuitive systems that drive insights and innovation.</p>
     </div>
   )
 }
