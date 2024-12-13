@@ -427,23 +427,55 @@ function Starfield({ isScrolling }: { isScrolling: boolean }) {
       const y = star.y / (star.z * 0.001)
       if (x < -canvas.width / 2 || x > canvas.width / 2 || y < -canvas.height / 2 || y > canvas.height / 2) return
 
-      const baseSize = (1 - star.z / 2000) * 2.8 // Reduced by 30% from 4
+      const baseSize = (1 - star.z / 2000) * 2.8
       const size = baseSize * star.size
-      const shade = Math.floor((1 - star.z / 2000) * 255)
+      
+      // Create subtle prismatic color effect
+      const time = Date.now() * 0.001
+      const brightness = Math.floor((1 - star.z / 2000) * 255)
+      
+      // Reduced RGB variations for more subtle effect
+      const r = brightness + Math.sin(time + star.x) * 8
+      const g = brightness + Math.sin(time + star.y + 2) * 8
+      const b = brightness + Math.sin(time + star.x + 4) * 12
 
       if (ctx) {
+        // Draw 8-pointed star
         ctx.beginPath()
-        ctx.fillStyle = `rgb(${shade}, ${shade + 15}, ${shade + 30})`
-        ctx.arc(x + canvas.width / 2, y + canvas.height / 2, size < 0.1 ? 0.1 : size, 0, Math.PI * 2)
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`
+        
+        const centerX = x + canvas.width / 2
+        const centerY = y + canvas.height / 2
+        const innerSize = size * 0.4  // Size of inner points
+        
+        // Draw 8 points
+        for (let i = 0; i < 8; i++) {
+          const angle = (i * Math.PI) / 4
+          const nextAngle = ((i + 1) * Math.PI) / 4
+          
+          // Outer point
+          ctx.lineTo(
+            centerX + Math.cos(angle) * size,
+            centerY + Math.sin(angle) * size
+          )
+          
+          // Inner point
+          ctx.lineTo(
+            centerX + Math.cos(angle + Math.PI / 8) * innerSize,
+            centerY + Math.sin(angle + Math.PI / 8) * innerSize
+          )
+        }
+        
+        ctx.closePath()
         ctx.fill()
 
         // Only draw star trails when moving faster than cruising speed
-        if (speed.current > 2.5) { // 2.5 = cruising speed threshold
+        if (speed.current > 2.5) {
           ctx.beginPath()
-          ctx.strokeStyle = `rgba(${shade}, ${shade + 15}, ${shade + 30}, ${(1 - star.z / 2000) * 0.8})`
+          ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(1 - star.z / 2000) * 0.8})`
           ctx.lineWidth = size * 0.6
           ctx.moveTo(star.px + canvas.width / 2, star.py + canvas.height / 2)
-          ctx.lineTo(x + canvas.width / 2, y + canvas.height / 2)
+          ctx.lineTo(centerX, centerY)
           ctx.stroke()
         }
 
