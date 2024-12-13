@@ -8,14 +8,6 @@ const nextConfig = {
     return []
   },
   distDir: 'out',
-  async copyFileToPublicDirectory() {
-    return [
-      {
-        source: './CNAME',
-        destination: './out/CNAME',
-      },
-    ]
-  },
 }
 
 module.exports = nextConfig

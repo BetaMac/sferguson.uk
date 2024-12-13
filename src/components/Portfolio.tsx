@@ -117,7 +117,7 @@ export default function Portfolio() {
         container.removeEventListener('touchmove', handleTouchMove)
       }
     }
-  }, [currentSection, isScrolling, lastScrollTime])
+  }, [currentSection, isScrolling, lastScrollTime, isMobileMenuOpen])
 
   const handleMenuClick = (index: number) => {
     setIsMenuNavigating(true)
@@ -128,12 +128,12 @@ export default function Portfolio() {
 
   useEffect(() => {
     // Trigger initial hyperspace effect
-    if (isInitialLoad) {
-      setTimeout(() => {
-        setIsInitialLoad(false)
-      }, 800) // Match this with the motion.div animation duration
-    }
-  }, []) // Empty dependency array means this runs once on mount
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false)
+    }, 800) // Match this with the motion.div animation duration
+
+    return () => clearTimeout(timer)
+  }, []) // Empty dependency array is fine here as this is intentionally only run once
 
   return (
     <div className="relative min-w-[320px] h-screen overflow-hidden bg-[#000106] text-white" ref={containerRef}>
@@ -376,7 +376,7 @@ function ContactSection() {
         <a href="https://github.com/BetaMac" target="_blank" rel="noopener noreferrer" className="flex items-center">
           <Github className="mr-2" /> GitHub
         </a>
-        <a href="https://twitter.com/LondonFerg" target="_blank" rel="noopener noreferrer" className="flex items-center">
+        <a href="https://twitter.com/thestevefergie" target="_blank" rel="noopener noreferrer" className="flex items-center">
           <Twitter className="mr-2" /> Twitter
         </a>
       </div>
@@ -385,20 +385,33 @@ function ContactSection() {
 }
 
 function Starfield({ isScrolling }: { isScrolling: boolean }) {
-  const starCount = 1620 // Reduced by another 10% from 1800
+  const starCount = 1620
   const stars = useRef<{ x: number; y: number; z: number; px: number; py: number; size: number }[]>([])
   const speed = useRef(0)
   const targetSpeed = useRef(0)
   const animationRef = useRef<number | undefined>(undefined)
+  const quality = useRef(1)
 
   useEffect(() => {
+    // Check device capabilities once on mount
+    const pixelRatio = window.devicePixelRatio || 1
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    
+    if (isMobile || pixelRatio > 2) {
+      quality.current = 0.75
+    }
+
     const canvas = document.getElementById('starfield') as HTMLCanvasElement
     const ctx = canvas?.getContext('2d')
 
     const resizeCanvas = () => {
       if (canvas) {
-        canvas.width = window.innerWidth
-        canvas.height = window.innerHeight
+        canvas.width = window.innerWidth * quality.current
+        canvas.height = window.innerHeight * quality.current
+        if (quality.current !== 1) {
+          canvas.style.width = `${window.innerWidth}px`
+          canvas.style.height = `${window.innerHeight}px`
+        }
       }
     }
 
@@ -440,7 +453,7 @@ function Starfield({ isScrolling }: { isScrolling: boolean }) {
       const b = brightness + Math.sin(time + star.x + 4) * 12
 
       if (ctx) {
-        // Draw 8-pointed star
+        // Draw diamond shape
         ctx.beginPath()
         ctx.fillStyle = `rgb(${r}, ${g}, ${b})`
         
@@ -451,7 +464,6 @@ function Starfield({ isScrolling }: { isScrolling: boolean }) {
         // Draw 8 points
         for (let i = 0; i < 8; i++) {
           const angle = (i * Math.PI) / 4
-          const nextAngle = ((i + 1) * Math.PI) / 4
           
           // Outer point
           ctx.lineTo(

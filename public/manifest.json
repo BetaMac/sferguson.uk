@@ -1,0 +1,9 @@
+{
+  "name": "Stephen Ferguson Portfolio",
+  "short_name": "SF Portfolio",
+  "theme_color": "#000106",
+  "background_color": "#000106",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/"
+} 
