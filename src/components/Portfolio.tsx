@@ -12,6 +12,7 @@ export default function Portfolio() {
   const [isMenuNavigating, setIsMenuNavigating] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [lastScrollTime, setLastScrollTime] = useState(0)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
   const touchStartY = useRef(0)
 
@@ -125,9 +126,18 @@ export default function Portfolio() {
     setTimeout(() => setIsMenuNavigating(false), 1000)
   }
 
+  useEffect(() => {
+    // Trigger initial hyperspace effect
+    if (isInitialLoad) {
+      setTimeout(() => {
+        setIsInitialLoad(false)
+      }, 800) // Match this with the motion.div animation duration
+    }
+  }, []) // Empty dependency array means this runs once on mount
+
   return (
     <div className="relative min-w-[320px] h-screen overflow-hidden bg-[#000106] text-white" ref={containerRef}>
-      <Starfield isScrolling={isScrolling || isMenuNavigating} />
+      <Starfield isScrolling={isScrolling || isMenuNavigating || isInitialLoad} />
       <div className="relative z-10">
         <header className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-3 bg-black bg-opacity-10">
           <h1 className="text-sm sm:text-xl font-bold">
@@ -186,18 +196,54 @@ export default function Portfolio() {
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSection}
-              initial={{ z: 1000, opacity: 0 }}
-              animate={{ z: 0, opacity: 1 }}
-              exit={{ z: -1000, opacity: 0 }}
-              transition={{ 
-                type: "tween",
-                duration: 0.5,
-                ease: "easeInOut"
+              // Starting position - content appears from far away
+              initial={{ 
+                z: 1000,        // Start deep in z-space (coming towards viewer)
+                opacity: 0,      // Fully transparent
+                scale: 0.2,      // Start at half size to enhance depth effect
+                rotateX: 0       // No initial rotation
               }}
+              // Middle position - content in view
+              animate={{ 
+                z: 0,           // Move to center of z-space
+                opacity: 1,      // Fully visible
+                scale: 1,        // Full size
+                rotateX: 0       // No rotation when in view
+              }}
+              // Exit animation - content flies past viewer
+              exit={{ 
+                z: -2000,       // Move deep into negative z-space (past viewer)
+                opacity: 0.1,      // Fade out as it passes
+                scale: 4,        // Grow larger as it gets closer
+                rotateX: -15     // Tilt forward as it flies past
+              }}
+              // Animation timing and easing
+              transition={{ 
+                type: "easeInOut",
+                duration: 0.4,   // Overall animation duration
+                opacity: {
+                  duration: 0.4, // Faster fade for smoother effect
+                  ease: "easeOut"
+                },
+                scale: {
+                  duration: 0.8,
+                  ease: "easeIn"  // Accelerating scale for dramatic exit
+                },
+                z: {
+                  duration: 0.8,
+                  ease: "easeIn"  // Accelerating z-movement matches starfield
+                },
+                rotateX: {
+                  duration: 0.8,
+                  ease: "easeIn"  // Smooth rotation as content flies past
+                }
+              }}
+              // 3D transformation settings
               style={{
                 position: 'fixed',
                 inset: 0,
-                transformStyle: 'preserve-3d',
+                transformStyle: 'preserve-3d',    // Enable 3D transformations
+                perspective: 1000,                // Add depth to the 3D space
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -391,7 +437,8 @@ function Starfield({ isScrolling }: { isScrolling: boolean }) {
         ctx.arc(x + canvas.width / 2, y + canvas.height / 2, size < 0.1 ? 0.1 : size, 0, Math.PI * 2)
         ctx.fill()
 
-        if (speed.current > 2.5) {
+        // Only draw star trails when moving faster than cruising speed
+        if (speed.current > 2.5) { // 2.5 = cruising speed threshold
           ctx.beginPath()
           ctx.strokeStyle = `rgba(${shade}, ${shade + 15}, ${shade + 30}, ${(1 - star.z / 2000) * 0.8})`
           ctx.lineWidth = size * 0.6
@@ -436,7 +483,8 @@ function Starfield({ isScrolling }: { isScrolling: boolean }) {
   }, [])
 
   useEffect(() => {
-    targetSpeed.current = isScrolling ? 100 : 2.5
+    // Set target speed based on scrolling state
+    targetSpeed.current = isScrolling ? 100 : 0.6  // 100 = hyperspace jump speed, 0.5 = idle cruising speed
   }, [isScrolling])
 
   return <canvas id="starfield" className="fixed inset-0 z-0" />
