@@ -196,26 +196,26 @@ export default function Portfolio() {
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSection}
-              // Starting position - content appears from far away
+              // Starting position - content appears from even further away
               initial={{ 
-                z: 1000,        // Start deep in z-space (coming towards viewer)
-                opacity: 0,      // Fully transparent
-                scale: 0.2,      // Start at half size to enhance depth effect
-                rotateX: 0       // No initial rotation
+                z: 2000,        // Increased from 1000 to 2000 for more distance
+                opacity: 0,      
+                scale: 0.1,      // Decreased from 0.2 to 0.1 to start even smaller
+                rotateX: 0       
               }}
               // Middle position - content in view
               animate={{ 
-                z: 0,           // Move to center of z-space
-                opacity: 1,      // Fully visible
-                scale: 1,        // Full size
-                rotateX: 0       // No rotation when in view
+                z: 0,           
+                opacity: 1,      
+                scale: 1,        
+                rotateX: 0       
               }}
               // Exit animation - content flies past viewer
               exit={{ 
-                z: -2000,       // Move deep into negative z-space (past viewer)
-                opacity: 0.1,      // Fade out as it passes
-                scale: 4,        // Grow larger as it gets closer
-                rotateX: -15     // Tilt forward as it flies past
+                z: -2000,       
+                opacity: 0.1,    
+                scale: 4,        
+                rotateX: -15     
               }}
               // Animation timing and easing
               transition={{ 
