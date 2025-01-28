@@ -212,29 +212,29 @@ export default function Portfolio() {
               }}
               // Exit animation - content flies past viewer
               exit={{ 
-                z: -4000,       // Even more dramatic z-distance
+                z: -2000,       // Back to previous value
                 opacity: 0,
-                scale: 1.5,      // Reduced scale for even faster perceived movement
-                rotateX: -20     // Slightly more rotation
+                scale: 3,        // Back to previous value
+                rotateX: -15     // Back to previous value
               }}
               // Animation timing and easing
               transition={{ 
                 type: "easeInOut",
-                duration: 0.1,    // Ultra fast overall duration
+                duration: 0.3,    // Back to previous duration
                 opacity: {
-                  duration: 0.05, // Nearly instant fade
+                  duration: 0.15, // Back to previous fade duration
                   ease: "easeOut"
                 },
                 scale: {
-                  duration: 0.1,  // Lightning fast scale
+                  duration: 0.4,  // Back to previous scale duration
                   ease: "easeIn"
                 },
                 z: {
-                  duration: 0.1,  // Super quick z-movement
+                  duration: 0.4,  // Back to previous z-movement duration
                   ease: "easeIn"
                 },
                 rotateX: {
-                  duration: 0.1,  // Quick rotation
+                  duration: 0.4,  // Back to previous rotation duration
                   ease: "easeIn"
                 }
               }}
