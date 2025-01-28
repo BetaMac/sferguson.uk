@@ -212,30 +212,30 @@ export default function Portfolio() {
               }}
               // Exit animation - content flies past viewer
               exit={{ 
-                z: -2000,       
-                opacity: 0.1,    
-                scale: 4,        
+                z: -3000,       // Increased from -2000 for more dramatic exit
+                opacity: 0,
+                scale: 2,        // Reduced from 3 for even faster movement
                 rotateX: -15     
               }}
               // Animation timing and easing
               transition={{ 
                 type: "easeInOut",
-                duration: 0.4,   // Overall animation duration
+                duration: 0.15,   // Reduced from 0.2
                 opacity: {
-                  duration: 0.4, // Faster fade for smoother effect
+                  duration: 0.08, // Reduced from 0.1
                   ease: "easeOut"
                 },
                 scale: {
-                  duration: 0.8,
-                  ease: "easeIn"  // Accelerating scale for dramatic exit
+                  duration: 0.15, // Reduced from 0.25
+                  ease: "easeIn"
                 },
                 z: {
-                  duration: 0.8,
-                  ease: "easeIn"  // Accelerating z-movement matches starfield
+                  duration: 0.15, // Reduced from 0.25
+                  ease: "easeIn"
                 },
                 rotateX: {
-                  duration: 0.8,
-                  ease: "easeIn"  // Smooth rotation as content flies past
+                  duration: 0.15, // Reduced from 0.25
+                  ease: "easeIn"
                 }
               }}
               // 3D transformation settings
