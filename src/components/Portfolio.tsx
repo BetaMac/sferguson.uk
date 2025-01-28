@@ -212,29 +212,29 @@ export default function Portfolio() {
               }}
               // Exit animation - content flies past viewer
               exit={{ 
-                z: -3000,       // Increased from -2000 for more dramatic exit
+                z: -4000,       // Even more dramatic z-distance
                 opacity: 0,
-                scale: 2,        // Reduced from 3 for even faster movement
-                rotateX: -15     
+                scale: 1.5,      // Reduced scale for even faster perceived movement
+                rotateX: -20     // Slightly more rotation
               }}
               // Animation timing and easing
               transition={{ 
                 type: "easeInOut",
-                duration: 0.15,   // Reduced from 0.2
+                duration: 0.1,    // Ultra fast overall duration
                 opacity: {
-                  duration: 0.08, // Reduced from 0.1
+                  duration: 0.05, // Nearly instant fade
                   ease: "easeOut"
                 },
                 scale: {
-                  duration: 0.15, // Reduced from 0.25
+                  duration: 0.1,  // Lightning fast scale
                   ease: "easeIn"
                 },
                 z: {
-                  duration: 0.15, // Reduced from 0.25
+                  duration: 0.1,  // Super quick z-movement
                   ease: "easeIn"
                 },
                 rotateX: {
-                  duration: 0.15, // Reduced from 0.25
+                  duration: 0.1,  // Quick rotation
                   ease: "easeIn"
                 }
               }}
@@ -385,7 +385,7 @@ function ContactSection() {
 }
 
 function Starfield({ isScrolling }: { isScrolling: boolean }) {
-  const starCount = 1620
+  const starCount = 1782
   const stars = useRef<{ x: number; y: number; z: number; px: number; py: number; size: number }[]>([])
   const speed = useRef(0)
   const targetSpeed = useRef(0)
