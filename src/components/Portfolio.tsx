@@ -198,10 +198,10 @@ export default function Portfolio() {
               key={currentSection}
               // Starting position - content appears from even further away
               initial={{ 
-                z: 2000,        // Increased from 1000 to 2000 for more distance
+                z: 3000,        // Increased from 2000 for more dramatic entrance
                 opacity: 0,      
-                scale: 0.1,      // Decreased from 0.2 to 0.1 to start even smaller
-                rotateX: 0       
+                scale: 0.1,      // Back to smaller scale for more dramatic entrance
+                rotateX: 5       
               }}
               // Middle position - content in view
               animate={{ 
@@ -212,30 +212,30 @@ export default function Portfolio() {
               }}
               // Exit animation - content flies past viewer
               exit={{ 
-                z: -2000,       // Back to previous value
-                opacity: 0,
-                scale: 3,        // Back to previous value
-                rotateX: -15     // Back to previous value
+                z: -2000,       
+                opacity: 0.3,    
+                scale: 3.5,      
+                rotateX: -15     
               }}
               // Animation timing and easing
               transition={{ 
                 type: "easeInOut",
-                duration: 0.3,    // Back to previous duration
+                duration: 0.5,    
                 opacity: {
-                  duration: 0.15, // Back to previous fade duration
+                  duration: 0.35,  
                   ease: "easeOut"
                 },
                 scale: {
-                  duration: 0.4,  // Back to previous scale duration
-                  ease: "easeIn"
+                  duration: 0.5,   // Back to faster scale for snappier movement
+                  ease: "easeIn"   // Back to easeIn for more dramatic exit
                 },
                 z: {
-                  duration: 0.4,  // Back to previous z-movement duration
-                  ease: "easeIn"
+                  duration: 0.5,   // Matching other durations
+                  ease: "easeIn"   // Back to easeIn for more dramatic exit
                 },
                 rotateX: {
-                  duration: 0.4,  // Back to previous rotation duration
-                  ease: "easeIn"
+                  duration: 0.5,   
+                  ease: "easeIn"   // Back to easeIn for more dramatic exit
                 }
               }}
               // 3D transformation settings
